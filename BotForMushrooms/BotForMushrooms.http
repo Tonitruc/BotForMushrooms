@@ -1,0 +1,6 @@
+@BotForMushrooms_HostAddress = http://localhost:5230
+
+GET {{BotForMushrooms_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
