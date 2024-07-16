@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using BotForMushrooms.Models.Commands;
 
 namespace BotForMushrooms.Controllers
 {
@@ -10,23 +11,16 @@ namespace BotForMushrooms.Controllers
     [Route("/")]
     public class BotController : ControllerBase
     {
+        private TelegramBotClient bot = Bot.Get().Result;
+        private UpdateDistributor<CommandExecutor> updateDistributor = new UpdateDistributor<CommandExecutor>();
+
         [HttpPost]
         public async Task Post(Update update)
         {
-            if(update.Message != null && update.Message.Text != null)
-            {
-                var bot = await Bot.Get();
-                var message = update.Message;
-                var text = message.Text;
-                foreach(var command in Bot.Commands)
-                {
-                    if(command.Contains(text))
-                    {
-                        await command.Execute(message, bot);
-                        break;
-                    }
-                }
-            }
+            if (update.Message == null) 
+                return;
+
+            await updateDistributor.GetUpdate(update);
         }
 
         [HttpGet]

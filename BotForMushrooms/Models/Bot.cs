@@ -7,10 +7,6 @@ namespace BotForMushrooms.Models
     {
         private static TelegramBotClient? client;
 
-        public static List<Command> commandsList { get; } = [];
-
-        public static IReadOnlyList<Command> Commands => commandsList.AsReadOnly();
-
         public async static Task<TelegramBotClient> Get()
         {
             if(client != null)
@@ -20,8 +16,6 @@ namespace BotForMushrooms.Models
 
             client = new TelegramBotClient(AppSettings.Token);
             await client.SetWebhookAsync(AppSettings.Url);
-
-            commandsList.Add(new MustardBoyCommand());
 
             return client;
         }
