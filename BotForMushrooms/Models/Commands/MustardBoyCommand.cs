@@ -7,8 +7,6 @@ namespace BotForMushrooms.Models.Commands
     {
         public override string Name => "mustard_boy";
 
-        public const string ImagePath = @"Images\Mustard boy.jpg";
-
         public const string ImageUrl = @"https://drive.google.com/uc?export=view&id=1_C4A1100dB7WvcPFWc07h30Y3YGF_9TW";
 
         public override async Task Execute(Message message, ITelegramBotClient client)
