@@ -1,3 +1,4 @@
+using BotForMushrooms.Models;
 
 namespace BotForMushrooms
 {
@@ -9,7 +10,7 @@ namespace BotForMushrooms
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddNewtonsoftJson();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -27,6 +28,7 @@ namespace BotForMushrooms
 
 
             app.MapControllers();
+            Bot.Get();
 
             app.Run();
         }
