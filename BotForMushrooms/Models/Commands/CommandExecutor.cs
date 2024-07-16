@@ -27,9 +27,10 @@ namespace BotForMushrooms.Models.Commands
 
             foreach (var command in Commands)
             {
-                if (command.Name == text)
+                if (command.Contains(text))
                 {
                     await command.Execute(message, client);
+                    break;
                 }
             }
         }
