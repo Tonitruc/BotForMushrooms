@@ -8,7 +8,7 @@ namespace BotForMushrooms.Models.Commands
     {
         private readonly TelegramBotClient client = Bot.Get().Result;
 
-        private static List<Command> commandsList = [];
+        private static readonly List<Command> commandsList = [];
 
         public static IReadOnlyList<Command> Commands => commandsList.AsReadOnly();
 
