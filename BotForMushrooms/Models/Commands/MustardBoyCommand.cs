@@ -14,7 +14,7 @@ namespace BotForMushrooms.Models.Commands
             var chatId = message.Chat.Id;
 
             var inputFile = new InputFileUrl(new Uri(ImageUrl));
-            await client.SendPhotoAsync(chatId, inputFile, caption: "Mustard boy");
+            await client.SendPhotoAsync(chatId, inputFile, caption: "Mustard boy!");
 
         }
     }
