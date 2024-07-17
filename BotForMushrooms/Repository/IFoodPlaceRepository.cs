@@ -4,10 +4,11 @@ namespace BotForMushrooms.Repository
 {
     public interface IFoodPlaceRepository
     {
-        IEnumerable<FoodPlace> Get();
+        IEnumerable<FoodPlace> GetAll();
         FoodPlace? Get(long id);
-        void Create(FoodPlace item);
-        void Update(FoodPlace item);
-        FoodPlace? Delete(long id);
+        FoodPlace? GetByName(string name);
+        FoodPlace? Create(FoodPlace foodPlace);
+        FoodPlace? Update(long id, FoodPlace updateFoodPlace);
+        bool Delete(long id);
     }
 }

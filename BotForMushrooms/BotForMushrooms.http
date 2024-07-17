@@ -1,6 +1,1 @@
 @BotForMushrooms_HostAddress = http://localhost:9994
-
-GET {{BotForMushrooms_HostAddress}}/
-Accept: application/json
-
-###

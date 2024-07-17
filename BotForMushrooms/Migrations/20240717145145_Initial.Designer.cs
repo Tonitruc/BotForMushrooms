@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BotForMushrooms.Migrations
 {
     [DbContext(typeof(FoodPlaceDbContext))]
-    [Migration("20240716180405_Initial")]
+    [Migration("20240717145145_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

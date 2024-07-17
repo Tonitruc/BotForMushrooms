@@ -15,33 +15,65 @@ namespace BotForMushrooms.Controllers
         }
 
         [HttpGet(Name = "GetAll")]
-        public IEnumerable<FoodPlace> Get()
+        public IEnumerable<FoodPlace> GetAll()
         {
-            return FoodPlaceRepository.Get();
+            return FoodPlaceRepository.GetAll();
         }
 
         [HttpGet("{id}", Name = "Get")]
         public IActionResult Get(long Id)
         {
-            FoodPlace? todoItem = FoodPlaceRepository.Get(Id);
+            FoodPlace? foodPlace = FoodPlaceRepository.Get(Id);
 
-            if (todoItem == null)
+            if (foodPlace == null)
             {
                 return NotFound();
             }
 
-            return new ObjectResult(todoItem);
+            return new ObjectResult(foodPlace);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] FoodPlace todoItem)
+        public IActionResult Create([FromBody] FoodPlace? foodPlace)
         {
-            if (todoItem == null)
+            if (foodPlace == null)
+            {
+                return BadRequest();
+            }    
+
+            if(FoodPlaceRepository.Create(foodPlace) == null)
+            {
+                return BadRequest($"Food place with {foodPlace.Name} is exist.");
+            }
+
+            return CreatedAtRoute("Get", new { id = foodPlace.Id }, foodPlace);
+        }
+
+        [HttpPut("{id}", Name = "Update")]
+        public IActionResult Update(long Id, [FromBody] FoodPlace? foodPlace)
+        {
+            if(foodPlace == null)
             {
                 return BadRequest();
             }
-            FoodPlaceRepository.Create(todoItem);
-            return CreatedAtRoute("Get", new { id = todoItem.Id }, todoItem);
+
+            if(FoodPlaceRepository.Update(Id, foodPlace) == null)
+            {
+                return BadRequest($"Food place with {foodPlace.Id} is not exist.");
+            }
+
+            return CreatedAtRoute("Get", new { id = Id }, foodPlace);
+        }
+
+        [HttpDelete("{id}", Name = "Delete")]
+        public IActionResult Delete(long Id)
+        {
+            if (!FoodPlaceRepository.Delete(Id))
+            {
+                return NotFound();
+            }
+            
+            return Ok();
         }
     }
 }
