@@ -1,6 +1,10 @@
-﻿namespace BotForMushrooms.Models.ChatListeners
+﻿using BotForMushrooms.Models.Commands.CommandExecutros;
+using Telegram.Bot.Types;
+
+namespace BotForMushrooms.Models.ChatListeners
 {
-    public interface IGlobalListener
+    public interface IGlobalListener : IListener<CallbackQuery, GlobalCommandExecutor>
     {
+
     }
 }

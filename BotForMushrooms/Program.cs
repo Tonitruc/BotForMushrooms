@@ -1,6 +1,7 @@
 using BotForMushrooms.Extensions;
 using BotForMushrooms.Models;
 using BotForMushrooms.Repository;
+using Microsoft.Extensions.Logging;
 
 namespace BotForMushrooms
 {
@@ -21,6 +22,11 @@ namespace BotForMushrooms
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            Console.WriteLine("Start log");
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -31,9 +37,8 @@ namespace BotForMushrooms
             }
 
             app.UseAuthorization();
-
-
             app.MapControllers();
+
             await Bot.Get();
 
             app.Run();

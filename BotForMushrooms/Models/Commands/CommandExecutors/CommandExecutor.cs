@@ -4,35 +4,16 @@ using Telegram.Bot.Types;
 
 namespace BotForMushrooms.Models.Commands
 {
-    public class CommandExecutor : ITelegramUpdateListener
+    public abstract class CommandExecutor<T> : ITelegramUpdateListener where T : class
     {
-        private readonly TelegramBotClient client = Bot.Get().Result;
+        protected readonly TelegramBotClient client = Bot.Get().Result;
 
-        private static readonly List<Command> commandsList = [];
+        protected abstract List<ICommand<Message>> CommandList { get; }
 
-        public static IReadOnlyList<Command> Commands => commandsList.AsReadOnly();
+        public abstract Dictionary<long, T> ActiveMenus { get; }
 
-        public CommandExecutor()
-        {
-            commandsList.Add(new MustardBoyCommand());
-        }
+        public abstract Task GetUpdate(Update update);
 
-        public async Task GetUpdate(Update update)
-        {
-            if (update.Message == null || update.Message.Text == null)
-                return;
-
-            var message = update.Message;
-            var text = message.Text;
-
-            foreach (var command in Commands)
-            {
-                if (command.Contains(text))
-                {
-                    await command.Execute(message, client);
-                    break;
-                }
-            }
-        }
+        public abstract ChatUpdater ChatUpdater { get; }
     }
 }

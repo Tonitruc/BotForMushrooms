@@ -3,10 +3,10 @@ using Telegram.Bot.Types;
 
 namespace BotForMushrooms.Models.Commands
 {
-    public abstract class Command
+    public interface ICommand<T> where T : class
     {
-        public abstract string Name { get; }
-        public abstract Task Execute(Message message, ITelegramBotClient client);
+        public string Name { get; }
+        public Task Execute(T message, ITelegramBotClient client);
 
         public bool Contains(string? command)
         {

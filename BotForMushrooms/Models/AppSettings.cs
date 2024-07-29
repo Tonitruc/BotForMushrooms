@@ -2,7 +2,7 @@
 {
     public static class AppSettings
     {
-        public static string Url { get; set; } = @"https://18fe-178-120-2-62.ngrok-free.app";
+        public static string Url { get; set; } = @"https://BorForMushrooms.somee.com";
         
         public static string FullName { get; } = "BotForMushrooms";
 

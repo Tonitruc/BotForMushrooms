@@ -70,5 +70,12 @@ namespace BotForMushrooms.Repository.Implements
 
             return false;
         }
+
+        public bool DeleteByName(string name)
+        {
+            FoodPlace? existFoodPlace = GetByName(name);
+
+            return Delete(existFoodPlace?.Id ?? -1);
+        }
     }
 }

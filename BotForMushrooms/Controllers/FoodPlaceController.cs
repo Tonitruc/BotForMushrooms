@@ -65,14 +65,25 @@ namespace BotForMushrooms.Controllers
             return CreatedAtRoute("Get", new { id = Id }, foodPlace);
         }
 
-        [HttpDelete("{id}", Name = "Delete")]
-        public IActionResult Delete(long Id)
+        [HttpDelete("id/{id:long}", Name = "DeleteById")]
+        public IActionResult DeleteById(long id)
         {
-            if (!FoodPlaceRepository.Delete(Id))
+            if (!FoodPlaceRepository.Delete(id))
             {
                 return NotFound();
             }
-            
+
+            return Ok();
+        }
+
+        [HttpDelete("name/{foodPlaceName}", Name = "DeleteByName")]
+        public IActionResult DeleteByName(string foodPlaceName)
+        {
+            if (!FoodPlaceRepository.DeleteByName(foodPlaceName))
+            {
+                return NotFound();
+            }
+
             return Ok();
         }
     }

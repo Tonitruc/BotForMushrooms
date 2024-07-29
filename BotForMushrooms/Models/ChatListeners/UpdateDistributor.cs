@@ -11,13 +11,34 @@ namespace BotForMushrooms.Models.Commands
 
         public async Task GetUpdate(Update update)
         {
-            if (update.Message == null)
-                return;
+            long chatId;
+            string title = string.Empty;
 
-            long chatId = update.Message.Chat.Id;
+            if (update.Message != null)
+            {
+                chatId = update.Message.Chat.Id;
+                title = update.Message.Chat.Title;
+            }
+            else if(update.CallbackQuery != null) 
+            {
+                chatId = update.CallbackQuery.Message.Chat.Id;
+                title = update.CallbackQuery.Message.Chat.Title;
+            }
+            else
+            {
+                return;
+            }
+
             T? listener = listeners.GetValueOrDefault(chatId);
             listener ??= new T();
             listeners[chatId] = listener;
+
+/*            Console.WriteLine($"Chat: {title}");
+
+            if (title != "Тест бота")
+            {
+                return;
+            }*/
 
             await listener.GetUpdate(update);
         }

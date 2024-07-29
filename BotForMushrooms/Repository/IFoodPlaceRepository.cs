@@ -10,5 +10,6 @@ namespace BotForMushrooms.Repository
         FoodPlace? Create(FoodPlace foodPlace);
         FoodPlace? Update(long id, FoodPlace updateFoodPlace);
         bool Delete(long id);
+        bool DeleteByName(string name);
     }
 }
