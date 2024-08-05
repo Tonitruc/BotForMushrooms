@@ -33,12 +33,12 @@ namespace BotForMushrooms.Models.Commands
             listener ??= new T();
             listeners[chatId] = listener;
 
-/*            Console.WriteLine($"Chat: {title}");
+            Console.WriteLine($"Chat: {title}");
 
             if (title != "Тест бота")
             {
                 return;
-            }*/
+            }
 
             await listener.GetUpdate(update);
         }

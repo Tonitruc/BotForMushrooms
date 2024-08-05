@@ -1,5 +1,4 @@
 ﻿using Telegram.Bot;
-using BotForMushrooms.Models.Commands;
 
 namespace BotForMushrooms.Models
 {
@@ -15,7 +14,7 @@ namespace BotForMushrooms.Models
             }
 
             client = new TelegramBotClient(AppSettings.Token);
-            await client.SetWebhookAsync(AppSettings.Url);
+            // await client.SetWebhookAsync(AppSettings.Url);
 
             return client;
         }
