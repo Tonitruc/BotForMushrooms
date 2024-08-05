@@ -7,6 +7,6 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz
     {
         public bool IsSet { get; }
         public QuizSettingsEnum CurrentSetting { get; }
-        public void SetCommand(string parametr);
+        public void SetCommand(string? parametr);
     }
 }

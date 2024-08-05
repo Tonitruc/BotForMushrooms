@@ -1,6 +1,7 @@
 ﻿using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types;
 using Telegram.Bot;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
@@ -23,6 +24,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public async Task Execute(Message message, ITelegramBotClient client)
         {
+            IsSet = false;
             var chatId = message.Chat.Id;
             var text = message.Text;
 
@@ -49,19 +51,25 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             }
 
             var difficultyText = text.Substring(0, text.LastIndexOf(' '));
-            QuizDifficultyEnum difficulty = difficultyText switch
+            QuizDifficultyEnum? difficulty = difficultyText switch
             {
                 "Легко" => QuizDifficultyEnum.Easy,
                 "Средне" => QuizDifficultyEnum.Medium,
                 "Сложно" => QuizDifficultyEnum.Hard,
-                "Все" => QuizDifficultyEnum.All
+                "Все" => QuizDifficultyEnum.All,
+                 _ => null
             };
 
             SetCommand(difficulty.ToString());
         }
 
-        public void SetCommand(string parametr)
+        public void SetCommand(string? parametr)
         {
+            if (parametr.IsNullOrEmpty())
+            {
+                return;
+            }
+
             Executor.QuizSettings.Difficulty = (QuizDifficultyEnum)Enum.Parse(typeof(QuizDifficultyEnum), parametr);
             IsSet = true;
         }

@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using Microsoft.IdentityModel.Tokens;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -22,6 +23,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public async Task Execute(Message message, ITelegramBotClient client)
         {
+            IsSet = false;
             var chatId = message.Chat.Id;
             var text = message.Text;
 
@@ -29,7 +31,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
                 [ "Все темы 🌍" ],
                 ["Игры 💻",  ],
-                new KeyboardButton[] { "ТОЛЬКО ФУТБОЛ!!!" }
+                new KeyboardButton[] { "ТОЛЬКО ФУТБОЛ!!! ⚽" }
             })
             {
                 ResizeKeyboard = true
@@ -47,17 +49,23 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             }
 
             var themeText = text.Substring(0, text.LastIndexOf(' '));
-            QuizThemeEnum theme = themeText switch
+            QuizThemeEnum? theme = themeText switch
             {
                 "Все темы" => QuizThemeEnum.AllTheme,
-                "Игры" => QuizThemeEnum.VideoGames
+                "Игры" => QuizThemeEnum.VideoGames,
+                _=> null
             };
 
             SetCommand(theme.ToString());
         }
 
-        public void SetCommand(string parametr)
+        public void SetCommand(string? parametr)
         {
+            if (parametr.IsNullOrEmpty())
+            {
+                return;
+            }
+
             Executor.QuizSettings.Theme = (QuizThemeEnum)Enum.Parse(typeof(QuizThemeEnum), parametr);
             IsSet = true;
         }

@@ -33,6 +33,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                 new QuizStartMenuCommand(this),
                 new SetQuizThemeCommand(this),
                 new SetQuizDifficultyCommand(this),
+                new SetQuizLanguageCommand(this),
                 new SetQuizAnswerTypeCommand(this),
                 new SetQuizAmountRoundsEnum(this)
             ]);

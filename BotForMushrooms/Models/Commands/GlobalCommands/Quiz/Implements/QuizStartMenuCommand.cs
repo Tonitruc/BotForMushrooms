@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using Microsoft.IdentityModel.Tokens;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -35,7 +36,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                 ResizeKeyboard = true
             };
 
-            var prevGame = Executor.QuizSettings.IsSet ? Executor.QuizSettings?.ToString() : "Еще не было игр.";
+            var prevGame = Executor.QuizSettings.IsSet ? Executor.QuizSettings?.ToString() : "Еще не было игр. Требуется настройка!";
 
             Executor.QuizMessage = await client.SendPhotoAsync(
                 chatId: chatId,
@@ -58,8 +59,13 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             SetCommand(command);
         }
 
-        public void SetCommand(string parametr)
+        public void SetCommand(string? parametr)
         {
+            if(parametr.IsNullOrEmpty())
+            {
+                return;
+            }
+
             if(parametr.Equals("Старт"))
             {
                 if(Executor.QuizSettings.IsSet)

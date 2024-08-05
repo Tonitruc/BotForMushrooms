@@ -10,7 +10,9 @@
 
         public QuizAnswerTypeEnum? AnswerType { get; set; }
 
-        public bool IsSet => AmountRounds != null && Difficulty != null && Theme != null && AnswerType != null;
+        public QuizLanguageEnum? Language { get; set; }
+
+        public bool IsSet => AmountRounds != null && Difficulty != null && Theme != null && AnswerType != null && Language != null;
 
 
         public QuizSettings()
@@ -19,6 +21,7 @@
             Difficulty = null;
             Theme = null;
             AnswerType = null;
+            Language = null;
         }
 
         public override string ToString()
@@ -26,6 +29,7 @@
             return string.Format($"Количество раундов: {AmountRounds}\n"
                 + $"Сложность: {Difficulty}\n"
                 + $"Тема: {Theme}\n"
+                + $"Язык: {Language}\n"
                 + $"Тип ответа: {AnswerType}\n");
         }
     }

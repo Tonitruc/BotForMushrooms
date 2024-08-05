@@ -1,13 +1,13 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using Microsoft.IdentityModel.Tokens;
+using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types;
 using Telegram.Bot;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
-    public class SetQuizAnswerTypeCommand : IQuizSettingCommand
+    public class SetQuizLanguageCommand : IQuizSettingCommand
     {
-        public string Name => "set_quiz_answer_type_command";
+        public string Name => "set_quiz_language_command";
 
         public IQuizGame Executor { get; }
 
@@ -16,7 +16,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
         public QuizSettingsEnum CurrentSetting => QuizSettingsEnum.AnswerType;
 
 
-        public SetQuizAnswerTypeCommand(IQuizGame executor)
+        public SetQuizLanguageCommand(IQuizGame executor)
         {
             Executor = executor;
             IsSet = false;
@@ -25,22 +25,20 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
         public async Task Execute(Message message, ITelegramBotClient client)
         {
             IsSet = false;
-
             var chatId = message.Chat.Id;
             var text = message.Text;
 
             var replyKeyboard = new ReplyKeyboardMarkup(new[]
 {
-                [ "Выбор варианта ☑ " ],
-                [ "Абсолютный ответ ✍", ],
-                [ "Да или нет ?¿", ],
+                [ "Русский ⬜🟦🟥" ],
+                [ "English 🍵", ],
                 new KeyboardButton[] { "Все 🧐" }
             })
             {
                 ResizeKeyboard = true
             };
 
-            Executor.QuizMessage = await client.SendTextMessageAsync(chatId, "Выберите тип ответа: ", replyMarkup: replyKeyboard);
+            Executor.QuizMessage = await client.SendTextMessageAsync(chatId, "Выберите язык: ", replyMarkup: replyKeyboard);
         }
 
         public async Task GetUpdate(Message update, ITelegramBotClient client)
@@ -52,12 +50,11 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             }
 
             var answerTypeText = text.Substring(0, text.LastIndexOf(' '));
-            QuizAnswerTypeEnum? amswerType = answerTypeText switch
+            QuizLanguageEnum? amswerType = answerTypeText switch
             {
-                "Выбор варианта" => QuizAnswerTypeEnum.Multiple,
-                "Абсолютный ответ" => QuizAnswerTypeEnum.AbsoluteAnswer,
-                "Да или нет" => QuizAnswerTypeEnum.YesOrNot,
-                "Все" => QuizAnswerTypeEnum.All,
+                "Русский" => QuizLanguageEnum.Russian,
+                "English" => QuizLanguageEnum.English,
+                "Все" => QuizLanguageEnum.AllLanguage,
                 _ => null
             };
 
@@ -71,7 +68,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                 return;
             }
 
-            Executor.QuizSettings.AnswerType = (QuizAnswerTypeEnum)Enum.Parse(typeof(QuizAnswerTypeEnum), parametr);
+            Executor.QuizSettings.Language = (QuizLanguageEnum)Enum.Parse(typeof(QuizLanguageEnum), parametr);
             IsSet = true;
         }
     }

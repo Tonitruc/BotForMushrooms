@@ -1,6 +1,7 @@
 ﻿using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types;
 using Telegram.Bot;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
@@ -23,6 +24,9 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public async Task Execute(Message message, ITelegramBotClient client)
         {
+            IsSet = false;
+
+
             var chatId = message.Chat.Id;
             var text = message.Text;
 
@@ -49,19 +53,25 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             }
 
             var answerTypeText = text.Substring(0, text.LastIndexOf(' '));
-            QuizAmountRoundsEnum amswerType = answerTypeText switch
+            QuizAmountRoundsEnum? amswerType = answerTypeText switch
             {
                 "10 раундов" => QuizAmountRoundsEnum.ShortGame,
-                "20 раундовт" => QuizAmountRoundsEnum.MidleGame,
+                "20 раундов" => QuizAmountRoundsEnum.MidleGame,
                 "50 раундов" => QuizAmountRoundsEnum.LongGame,
-                "Бесконечно" => QuizAmountRoundsEnum.EternalGame
+                "Бесконечно" => QuizAmountRoundsEnum.EternalGame,
+                _=> null
             };
 
             SetCommand(amswerType.ToString());
         }
 
-        public void SetCommand(string parametr)
+        public void SetCommand(string? parametr)
         {
+            if(parametr.IsNullOrEmpty())
+            {
+                return;
+            }
+
             Executor.QuizSettings.AmountRounds = (QuizAmountRoundsEnum)Enum.Parse(typeof(QuizAmountRoundsEnum), parametr);
             IsSet = true;
         }
