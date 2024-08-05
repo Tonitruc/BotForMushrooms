@@ -14,8 +14,6 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public QuizSettingsEnum CurrentSetting => QuizSettingsEnum.AmountRounds;
 
-        public QuizSettingsEnum? NextCommand => null;
-
 
         public SetQuizAmountRoundsEnum(IQuizGame executor)
         {

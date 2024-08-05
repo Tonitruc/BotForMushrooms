@@ -2,6 +2,7 @@
 {
     public enum QuizSettingsEnum
     {
+        StartMenu,
         Theme,
         AmountRounds,
         Language,

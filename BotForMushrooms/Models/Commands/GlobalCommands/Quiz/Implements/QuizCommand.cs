@@ -10,8 +10,6 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
     {
         public string Name => "quiz_game";
 
-        public const string QuizTitleImage = @"https://drive.google.com/uc?export=view&id=19tl8YYyH2Nu42ix1MOFnlXbSiMWZH97t";
-
         public GlobalCommandExecutor Executor { get; }
 
         public QuizSettings QuizSettings { get; set; }
@@ -20,9 +18,9 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public bool QuizIsStart { get; set; }
 
-        public Dictionary<QuizSettingsEnum, IQuizSettingCommand> SettingsCommand { get; set; }
+        public LinkedList<IQuizSettingCommand> SettingsCommand { get; set; }
 
-        public QuizSettingsEnum CurrentSetting { get; set; }
+        public LinkedListNode<IQuizSettingCommand>? CurrentSetting { get; set; }
 
         public QuizCommand(GlobalCommandExecutor executor)
         {
@@ -32,11 +30,12 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             QuizIsStart = false;
 
             SettingsCommand = new([
-                new(QuizSettingsEnum.Theme, new SetQuizThemeCommand(this)),
-                new(QuizSettingsEnum.Difficulty, new SetQuizDifficultyCommand(this)),
-                new(QuizSettingsEnum.AnswerType, new SetQuizAnswerTypeCommand(this)),
-                new(QuizSettingsEnum.AmountRounds, new SetQuizAmountRoundsEnum(this))
-                ]);
+                new QuizStartMenuCommand(this),
+                new SetQuizThemeCommand(this),
+                new SetQuizDifficultyCommand(this),
+                new SetQuizAnswerTypeCommand(this),
+                new SetQuizAmountRoundsEnum(this)
+            ]);
         }
 
         public async Task Execute(Message message, ITelegramBotClient client)
@@ -56,32 +55,16 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             if (command.Equals("start"))
             {
                 Executor.StartListen(this);
-
-                var replyKeyboard = new ReplyKeyboardMarkup(new[]
-                {
-                [ "Настроить игру ⚙" ],
-                new KeyboardButton[] { "Использовать предыдущие настройки ⬅" }
-                })
-                {
-                    ResizeKeyboard = true
-                };
-
-                var prevGame = QuizSettings.IsSet ? QuizSettings?.ToString() : "Еще не было игр.";
-
-                QuizMessage = await client.SendPhotoAsync(
-                    chatId: chatId,
-                    caption: "Выбрите настройки для игры:\n\n" + $"Предыдущие настройки:\n{prevGame}",
-                    photo: InputFile.FromUri(QuizTitleImage),
-                    replyMarkup: replyKeyboard
-                );
+                CurrentSetting = SettingsCommand.First;
+                await CurrentSetting.Value.Execute(message, client);
             }
             else if (command.Equals("stop"))
             {
                 Executor.StopListen();
-                QuizIsStart = true;
+                QuizIsStart = false;
                 await client.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "Отмена игры!\n",
+                    chatId: QuizMessage.Chat.Id,  //cant be null
+                    text: "Остановка игры!\n",
                     replyMarkup: new ReplyKeyboardRemove()
                 );
             }
@@ -105,29 +88,15 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
             var command = text.Substring(0, text.LastIndexOf(' '));
 
-            if (command.Equals("Настроить игру"))
+            if (!QuizIsStart)
             {
-                QuizSettings = new QuizSettings();
-                CurrentSetting = QuizSettingsEnum.Theme;
-                await SettingsCommand[CurrentSetting].Execute(update, client);
-            }
-            else if(command.Equals("")
-            {
-
-            }
-            else if (!QuizSettings.IsSet)
-            {
-                await SettingsCommand[CurrentSetting].GetUpdate(update, client);
-                if (SettingsCommand[CurrentSetting].IsSet)
+                await CurrentSetting.Value.GetUpdate(update, client);
+                if(CurrentSetting.Value.CurrentSetting == QuizSettingsEnum.StartMenu)
                 {
-                    if (SettingsCommand[CurrentSetting].NextCommand != null)
+                    if(QuizSettings.IsSet && QuizIsStart)
                     {
-                        CurrentSetting = SettingsCommand[CurrentSetting].NextCommand.Value;
-                        await SettingsCommand[CurrentSetting].Execute(update, client);
-                    }
-                    else
-                    {
-                        QuizIsStart = true;
+                        QuizIsStart = false;
+
                         await client.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Игра началась!\n" + QuizSettings,
@@ -135,8 +104,21 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                         );
                     }
                 }
-            }
 
+                if(CurrentSetting.Value.IsSet)
+                {
+                    CurrentSetting = CurrentSetting.Next;
+                    if(CurrentSetting == null)
+                    {
+                        CurrentSetting = SettingsCommand.First;
+                    }
+                    await CurrentSetting.Value.Execute(update, client);
+                }
+            }
+            else
+            {
+
+            }
         }
 
         public bool Contains(string? command)

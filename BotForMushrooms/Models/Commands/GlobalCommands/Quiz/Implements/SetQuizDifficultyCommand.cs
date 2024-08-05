@@ -14,8 +14,6 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public QuizSettingsEnum CurrentSetting => QuizSettingsEnum.Difficulty;
 
-        public QuizSettingsEnum? NextCommand => QuizSettingsEnum.AnswerType;
-
 
         public SetQuizDifficultyCommand(IQuizGame executor)
         {

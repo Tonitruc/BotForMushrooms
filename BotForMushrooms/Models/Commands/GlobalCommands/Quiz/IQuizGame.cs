@@ -7,9 +7,10 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz
 {
     public interface IQuizGame : ICommand<Message>, IListener<Message, GlobalCommandExecutor>
     {
-        public Dictionary<QuizSettingsEnum, IQuizSettingCommand> SettingsCommand { get; set; }
-        public QuizSettingsEnum CurrentSetting { get; set; }
+        public LinkedList<IQuizSettingCommand> SettingsCommand { get; set; }
+        public LinkedListNode<IQuizSettingCommand>? CurrentSetting { get; set; }
         public Message? QuizMessage { get; set; }
         public QuizSettings QuizSettings { get; set; }
+        public bool QuizIsStart { get; set; }
     }
 }

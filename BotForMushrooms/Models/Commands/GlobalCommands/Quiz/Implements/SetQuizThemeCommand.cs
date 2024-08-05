@@ -1,6 +1,4 @@
-﻿using BotForMushrooms.Models.ChatListeners;
-using BotForMushrooms.Models.Commands.CommandExecutros;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -15,9 +13,6 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
         public bool IsSet { get; set; }
 
         public QuizSettingsEnum CurrentSetting => QuizSettingsEnum.Theme;
-
-        public QuizSettingsEnum? NextCommand => QuizSettingsEnum.Difficulty;
-
 
         public SetQuizThemeCommand(IQuizGame executor)
         {
