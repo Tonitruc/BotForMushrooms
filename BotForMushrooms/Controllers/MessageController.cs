@@ -12,8 +12,7 @@ namespace BotForMushrooms.Controllers
     [Route("/")]
     public class BotController : ControllerBase
     {
-        private static readonly TelegramBotClient bot = Bot.Get().Result;
-        private static readonly UpdateDistributor<ChatUpdater> updateDistributor = new UpdateDistributor<ChatUpdater>();
+        private static readonly UpdateDistributor updateDistributor = new UpdateDistributor();
 
         [HttpPost]
         public async Task Post(Update update)

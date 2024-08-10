@@ -46,22 +46,29 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             );
         }
 
-        public async Task GetUpdate(Message update, ITelegramBotClient client)
+        public Task GetUpdate(Message update, ITelegramBotClient client)
         {
             var text = update.Text;
             if (text == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            string command = text.Substring(0, text.LastIndexOf(' '));
+            int lastIndexSpace = text.LastIndexOf(' ');
+            if (lastIndexSpace == -1)
+            {
+                return Task.CompletedTask;
+            }
+
+            string command = text.Substring(0, lastIndexSpace);
 
             SetCommand(command);
+            return Task.CompletedTask;
         }
 
         public void SetCommand(string? parametr)
         {
-            if(parametr.IsNullOrEmpty())
+            if(string.IsNullOrEmpty(parametr))
             {
                 return;
             }

@@ -1,6 +1,12 @@
-﻿namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz
+﻿using BotForMushrooms.Models.ChatListeners;
+using BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements;
+using Telegram.Bot.Types;
+
+namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz
 {
-    public class IAnswerUpdater
+    public interface IQuizAnswerUpdater
     {
+        Message? QuiestionMessage { get; set; }
+        IQuizGame QuizGame { get; }
     }
 }

@@ -15,7 +15,12 @@ namespace BotForMushrooms.Models.Commands.CommandExecutros
 
         public override ChatUpdater ChatUpdater { get; }
 
+        protected IQuizGame? QuizGame { get; set; } = null;
+
         protected IListener<Message, GlobalCommandExecutor>? Listener { get; set; } = null;
+
+        protected IListener<PollAnswer, GlobalCommandExecutor>? PollAnswerListener { get; set; } = null;
+
 
         public GlobalCommandExecutor(ChatUpdater chatUpdater)
         {
@@ -38,6 +43,10 @@ namespace BotForMushrooms.Models.Commands.CommandExecutros
                 if (command != null)
                 {
                     await command.Execute(message, client);
+                }
+                else if(QuizGame != null)
+                {
+                    await QuizGame.GetUpdate(message, client);
                 }
                 else if(Listener != null)
                 {
@@ -63,6 +72,26 @@ namespace BotForMushrooms.Models.Commands.CommandExecutros
                     }
                 }
             }
+            else if(update.PollAnswer != null)
+            {
+                if(PollAnswerListener != null)
+                {
+                    PollAnswer pollAnswer = update.PollAnswer;
+                    await PollAnswerListener.GetUpdate(pollAnswer, client);
+                }
+            }
+        }
+
+        public void StartPollAnswerListen(Poll poll, IListener<PollAnswer, GlobalCommandExecutor> pollAnswerListener)
+        {
+            ChatUpdater.AddPoll(poll.Id);
+            PollAnswerListener = pollAnswerListener;
+        }
+
+        public void StopPollAnswerListen(Poll poll)
+        {
+            PollAnswerListener = null;
+            ChatUpdater.RemovePoll(poll.Id);
         }
 
         public void StartListen(IListener<Message, GlobalCommandExecutor> listener)
@@ -73,6 +102,16 @@ namespace BotForMushrooms.Models.Commands.CommandExecutros
         public void StopListen()
         {
             Listener = null;
+        }
+
+        public void StartQuizGame(IQuizGame quizGame)
+        {
+            QuizGame = quizGame;
+        }
+
+        public void StopQuizGame()
+        {
+            QuizGame = null;
         }
     }
 }

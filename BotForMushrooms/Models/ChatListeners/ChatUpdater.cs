@@ -5,7 +5,7 @@ using Telegram.Bot.Types;
 
 namespace BotForMushrooms.Models
 {
-    public class ChatUpdater : ITelegramUpdateListener
+    public class ChatUpdater : TelegramUpdateListener
     {
         public Dictionary<long, string> Users { get; } = [];
 
@@ -13,12 +13,13 @@ namespace BotForMushrooms.Models
 
         public Dictionary<long, PersonalCommandExecutor> PersonalExecutors { get; } = [];
 
-        public ChatUpdater() 
+
+        public ChatUpdater(Chat from) : base(from)
         {
             GlobalExecutor = new(this);
         }
 
-        public async Task GetUpdate(Update update)
+        public override async Task GetUpdate(Update update)
         {
             await GlobalExecutor.GetUpdate(update);
 
@@ -37,6 +38,11 @@ namespace BotForMushrooms.Models
                 userId = update.CallbackQuery.From.Id;
                 user = update.CallbackQuery.From;
 
+            }
+            else if(update.PollAnswer != null)
+            {
+                userId = update.PollAnswer.User.Id;
+                user = update.PollAnswer.User;
             }
             else
             {

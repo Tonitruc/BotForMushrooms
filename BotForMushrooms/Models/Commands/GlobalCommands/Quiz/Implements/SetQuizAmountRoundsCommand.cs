@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
-    public class SetQuizAmountRoundsEnum : IQuizSettingCommand
+    public class SetQuizAmountRoundsCommand : IQuizSettingCommand
     {
         public string Name => "set_quiz_amount_rounds_command";
 
@@ -16,7 +16,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
         public QuizSettingsEnum CurrentSetting => QuizSettingsEnum.AmountRounds;
 
 
-        public SetQuizAmountRoundsEnum(IQuizGame executor)
+        public SetQuizAmountRoundsCommand(IQuizGame executor)
         {
             Executor = executor;
             IsSet = false;
@@ -44,15 +44,22 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             Executor.QuizMessage = await client.SendTextMessageAsync(chatId, "Выберите количество раундов: ", replyMarkup: replyKeyboard);
         }
 
-        public async Task GetUpdate(Message update, ITelegramBotClient client)
+        public Task GetUpdate(Message update, ITelegramBotClient client)
         {
             var text = update.Text;
             if (text == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            var answerTypeText = text.Substring(0, text.LastIndexOf(' '));
+            int lastIndexSpace = text.LastIndexOf(' ');
+            if (lastIndexSpace == -1)
+            {
+                return Task.CompletedTask;
+            }
+
+            string answerTypeText = text.Substring(0, lastIndexSpace);
+
             QuizAmountRoundsEnum? amswerType = answerTypeText switch
             {
                 "10 раундов" => QuizAmountRoundsEnum.ShortGame,
@@ -63,11 +70,12 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             };
 
             SetCommand(amswerType.ToString());
+            return Task.CompletedTask;
         }
 
         public void SetCommand(string? parametr)
         {
-            if(parametr.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(parametr))
             {
                 return;
             }

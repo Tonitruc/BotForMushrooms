@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 
 namespace BotForMushrooms.Models.Commands
 {
-    public abstract class CommandExecutor<T> : ITelegramUpdateListener where T : class
+    public abstract class CommandExecutor<T>
     {
         protected readonly TelegramBotClient client = Bot.Get().Result;
 
@@ -12,8 +12,8 @@ namespace BotForMushrooms.Models.Commands
 
         public abstract Dictionary<long, T> ActiveMenus { get; }
 
-        public abstract Task GetUpdate(Update update);
-
         public abstract ChatUpdater ChatUpdater { get; }
+
+        public abstract Task GetUpdate(Update update);
     }
 }

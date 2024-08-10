@@ -13,6 +13,9 @@ namespace BotForMushrooms.Extensions
             services.AddDbContext<FoodPlaceDbContext>(options => options.UseSqlServer(configuration[ConnectionStringName]));
             services.AddTransient<IFoodPlaceRepository, FoodPlaceRepository>();
 
+            services.AddDbContext<BanQuestionDbContext>(options => options.UseSqlServer(configuration[ConnectionStringName]));
+            services.AddTransient<IBanQuestionRepository, BanQuestionRepository>();
+
             return services;
         }
     }

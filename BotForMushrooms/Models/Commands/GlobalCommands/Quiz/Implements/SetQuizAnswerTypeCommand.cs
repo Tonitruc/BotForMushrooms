@@ -43,15 +43,21 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             Executor.QuizMessage = await client.SendTextMessageAsync(chatId, "Выберите тип ответа: ", replyMarkup: replyKeyboard);
         }
 
-        public async Task GetUpdate(Message update, ITelegramBotClient client)
+        public Task GetUpdate(Message update, ITelegramBotClient client)
         {
             var text = update.Text;
             if (text == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            var answerTypeText = text.Substring(0, text.LastIndexOf(' '));
+            int lastIndexSpace = text.LastIndexOf(' ');
+            if (lastIndexSpace == -1)
+            {
+                return Task.CompletedTask;
+            }
+
+            string answerTypeText = text.Substring(0, lastIndexSpace);
             QuizAnswerTypeEnum? amswerType = answerTypeText switch
             {
                 "Выбор варианта" => QuizAnswerTypeEnum.Multiple,
@@ -62,11 +68,12 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             };
 
             SetCommand(amswerType.ToString());
+            return Task.CompletedTask;
         }
 
         public void SetCommand(string? parametr)
         {
-            if (parametr.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(parametr))
             {
                 return;
             }

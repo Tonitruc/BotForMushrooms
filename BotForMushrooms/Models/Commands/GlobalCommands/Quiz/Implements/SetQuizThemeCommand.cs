@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using System.Text.Unicode;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -26,12 +27,13 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             IsSet = false;
             var chatId = message.Chat.Id;
             var text = message.Text;
+            string alien = char.ConvertFromUtf32(0x1F47D);
 
             var replyKeyboard = new ReplyKeyboardMarkup(new[]
 {
                 [ "Все темы 🌍" ],
-                ["Игры 💻",  ],
-                new KeyboardButton[] { "ТОЛЬКО ФУТБОЛ!!! ⚽" }
+                [$"Наука {alien}",  "Развлечения 💲"],
+                new KeyboardButton[] { "Видеоигры 💻", "Общие знания 🧠" }
             })
             {
                 ResizeKeyboard = true
@@ -40,28 +42,40 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             Executor.QuizMessage = await client.SendTextMessageAsync(chatId, "Выберите тему: ", replyMarkup: replyKeyboard);
         }
 
-        public async Task GetUpdate(Message update, ITelegramBotClient client)
+        public Task GetUpdate(Message update, ITelegramBotClient client)
         {
             var text = update.Text;
             if(text == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            var themeText = text.Substring(0, text.LastIndexOf(' '));
+            int lastIndexSpace = text.LastIndexOf(' ');
+            if (lastIndexSpace == -1)
+            {
+                return Task.CompletedTask;
+            }
+
+            string themeText = text.Substring(0, lastIndexSpace);
+
             QuizThemeEnum? theme = themeText switch
             {
                 "Все темы" => QuizThemeEnum.AllTheme,
-                "Игры" => QuizThemeEnum.VideoGames,
-                _=> null
+                "Видеоигры" => QuizThemeEnum.VideoGames,
+                "Наука" => QuizThemeEnum.Science,
+                "Развлечения" => QuizThemeEnum.Entertaiment,
+                "Общие знания" => QuizThemeEnum.GeneralKnowlage,
+                _ => null
             };
 
             SetCommand(theme.ToString());
+
+            return Task.CompletedTask;
         }
 
         public void SetCommand(string? parametr)
         {
-            if (parametr.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(parametr))
             {
                 return;
             }

@@ -42,15 +42,22 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             Executor.QuizMessage = await client.SendTextMessageAsync(chatId, "Выберите сложность: ", replyMarkup: replyKeyboard);
         }
 
-        public async Task GetUpdate(Message update, ITelegramBotClient client)
+        public Task GetUpdate(Message update, ITelegramBotClient client)
         {
             var text = update.Text;
             if (text == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            var difficultyText = text.Substring(0, text.LastIndexOf(' '));
+            int lastIndexSpace = text.LastIndexOf(' ');
+            if (lastIndexSpace == -1)
+            {
+                return Task.CompletedTask;
+            }
+
+            string difficultyText = text.Substring(0, lastIndexSpace);
+
             QuizDifficultyEnum? difficulty = difficultyText switch
             {
                 "Легко" => QuizDifficultyEnum.Easy,
@@ -61,11 +68,12 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             };
 
             SetCommand(difficulty.ToString());
+            return Task.CompletedTask;
         }
 
         public void SetCommand(string? parametr)
         {
-            if (parametr.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(parametr))
             {
                 return;
             }

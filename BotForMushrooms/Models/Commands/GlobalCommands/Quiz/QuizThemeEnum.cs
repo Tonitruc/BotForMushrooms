@@ -2,10 +2,10 @@
 {
     public enum QuizThemeEnum
     {
-        Programming, 
-        Math,
-        Cringe,
+        GeneralKnowlage, 
+        Entertaiment,
         VideoGames,
+        Science,
         AllTheme
     }
 }
