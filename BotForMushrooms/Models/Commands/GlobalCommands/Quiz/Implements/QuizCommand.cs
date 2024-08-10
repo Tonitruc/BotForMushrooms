@@ -83,6 +83,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                 await CurrentSetting.Value.Execute(message, client);
                 BanVotes = 0;
                 SkipVotes = 0;
+                UserScores.Clear();
             }
             else if (command.Equals("stop"))
             {
@@ -161,6 +162,8 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                                 while (QuizIsStart)
                                 {
                                     await MultipleAnswerUpdater.Execute(update, client);
+                                    BanVotes = 0;
+                                    SkipVotes = 0;
                                     AmountLeftRounds--;
                                     amountRounds++;
                                     if (amountRounds == 5)
