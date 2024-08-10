@@ -103,7 +103,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             else if (command.Equals("skip"))
             {
                 SkipVotes++;
-                if (QuizIsStart)
+                if (QuizIsStart && (SkipVotes / UserScores.Keys.Count > 0.5))
                 {
                     MultipleAnswerUpdater.StopQuestion();
                     SkipVotes = 0;

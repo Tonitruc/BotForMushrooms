@@ -209,6 +209,8 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
             question = question.Replace("&quot;", "\"");
             question = question.Replace("&#039;", "\'");
             question = question.Replace("&eacute;", "é");
+            question = question.Replace("&lt;", "<");
+         
             return question;
         }
     }
