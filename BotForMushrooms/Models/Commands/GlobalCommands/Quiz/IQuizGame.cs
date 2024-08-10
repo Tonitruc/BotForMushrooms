@@ -12,7 +12,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz
         Message? QuizMessage { get; set; }
         QuizSettings QuizSettings { get; set; }
         bool QuizIsStart { get; set; }
-        Dictionary<string, int> UserScores { get; set; }
+        Dictionary<long, (int, string)> UserScores { get; set; }
         int AmountLeftRounds { get; set; }
         QuizQuestion? CurrentQuestion { get; set; }
     }

@@ -31,11 +31,11 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public QuizQuestion? CurrentQuestion { get; set; }
 
-        public Dictionary<string, int> UserScores { get; set; }
+        public Dictionary<long, (int, string)> UserScores { get; set; }
 
-        public int BanVotes { get; set; }
+        public HashSet<long> BanVotes { get; set; }
 
-        public int SkipVotes { get; set; }
+        public HashSet<long> SKipVotes { get; set; }
 
 
         public QuizCommand(GlobalCommandExecutor executor)
@@ -61,7 +61,9 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             AmountLeftRounds = -1;
 
             UserScores = [];
-        }
+            BanVotes = [];
+            SKipVotes = [];
+    }
 
         public async Task Execute(Message message, ITelegramBotClient client)
         {
@@ -76,13 +78,13 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             var command = textParts[^1];
 
             var chatId = message.Chat.Id;
+            var userId = message.From.Id;            
 
             if (command.Equals("start"))
             {
                 Executor.StartQuizGame(this);
                 await CurrentSetting.Value.Execute(message, client);
-                BanVotes = 0;
-                SkipVotes = 0;
+                BanVotes = []; SKipVotes = [];
                 UserScores.Clear();
             }
             else if (command.Equals("stop"))
@@ -98,26 +100,34 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                     text: "Остановка игры!\n",
                     replyMarkup: new ReplyKeyboardRemove()
                 );
-
-                await GetUserScores(client);
             }
             else if (command.Equals("skip"))
             {
-                SkipVotes++;
-                if (QuizIsStart && (SkipVotes / UserScores.Keys.Count > 0.5))
+                if(UserScores.ContainsKey(userId))
+                {
+                    SKipVotes.Add(userId);
+                }
+
+                double percent = (double)SKipVotes.Count / UserScores.Keys.Count;
+                if (QuizIsStart && (percent > 0.5))
                 {
                     MultipleAnswerUpdater.StopQuestion();
-                    SkipVotes = 0;
+                    SKipVotes = [];
                 }
             }
             else if (command.Equals("ban"))
             {
-                BanVotes++;
-                if (QuizIsStart && (BanVotes / UserScores.Keys.Count > 0.5))
+                if (UserScores.ContainsKey(userId))
+                {
+                    BanVotes.Add(userId);
+                }
+
+                double percent = (double)BanVotes.Count / UserScores.Keys.Count;
+                if (QuizIsStart && (percent > 0.5))
                 {
                     await BanQuestion();
                     MultipleAnswerUpdater.StopQuestion();
-                    BanVotes = 0;
+                    BanVotes = [];
                 }
             }
         }
@@ -162,19 +172,18 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                                 while (QuizIsStart)
                                 {
                                     await MultipleAnswerUpdater.Execute(update, client);
-                                    BanVotes = 0;
-                                    SkipVotes = 0;
                                     AmountLeftRounds--;
                                     amountRounds++;
+                                    if (AmountLeftRounds == 0 && QuizSettings.AmountRounds != QuizAmountRoundsEnum.EternalGame)
+                                    {
+                                        break;
+                                    }
                                     if (amountRounds == 5)
                                     {
                                         await GetUserScores(client);
                                         amountRounds = 0;
                                     }
-                                    if (AmountLeftRounds == 0 && QuizSettings.AmountRounds != QuizAmountRoundsEnum.EternalGame)
-                                    {
-                                        break;
-                                    }
+                                    BanVotes = []; SKipVotes = [];
                                 }
                             }
                             catch (Exception ex)
@@ -213,11 +222,11 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
         private async Task GetUserScores(ITelegramBotClient client)
         {
             string resMessage = "Общие результаты:\n\n";
-            var sortedUserScores = UserScores.OrderBy(kv => kv.Key);
+            var sortedUserScores = UserScores.OrderByDescending(kv => kv.Value.Item1);
             int place = 1;
             foreach (var user in sortedUserScores)
             {
-                resMessage += place + ". " + user.Key + " - " + user.Value + " очк(о/ов)\n";
+                resMessage += place + ". " + user.Value.Item2 + " - " + user.Value.Item1 + " очк(о/ов)\n";
                 place++;
             }
 

@@ -25,7 +25,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
 
         public Message? CurrentPoll { get; set; }
 
-        public Dictionary<string, int> Points { get; set; }
+        public Dictionary<long, int> Points { get; set; }
 
         public int CorrectIndex { get; set; }
 
@@ -82,16 +82,12 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
                 try
                 {
                     await Task.Delay(30000, cts);
-
-                    if (!cts.IsCancellationRequested)
-                    {
-                        await client.StopPollAsync(message.Chat.Id, pollMessage.MessageId);
-                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
+                await client.StopPollAsync(message.Chat.Id, pollMessage.MessageId);
 
             }, cts);
 
@@ -101,7 +97,8 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
 
         public Task GetUpdate(PollAnswer update, ITelegramBotClient client)
         {
-            Points.Add(update.User.Username, update.OptionIds.Contains(CorrectIndex) ? 1 : 0);
+            Points.Add(update.User.Id, update.OptionIds.Contains(CorrectIndex) ? 1 : 0);
+            QuizGame.UserScores.TryAdd(update.User.Id, (0, update.User.Username));
             return Task.CompletedTask;
         }
 
@@ -123,12 +120,8 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
 
             foreach (var userPoints in Points)
             {
-                if (!QuizGame.UserScores.ContainsKey(userPoints.Key))
-                {
-                    QuizGame.UserScores.Add(userPoints.Key, 0);
-                }
-
-                QuizGame.UserScores[userPoints.Key] += userPoints.Value;
+                var pair = QuizGame.UserScores[userPoints.Key];
+                pair.Item1 += userPoints.Value;
             }
 
             Points = [];
