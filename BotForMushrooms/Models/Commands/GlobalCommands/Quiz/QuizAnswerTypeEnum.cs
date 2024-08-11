@@ -2,7 +2,7 @@
 {
     public enum QuizAnswerTypeEnum
     {
-        Multiple,
+        Multiple = 0,
         YesOrNot,
         AbsoluteAnswer,
         All

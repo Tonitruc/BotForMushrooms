@@ -27,7 +27,40 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
         public LinkedListNode<IQuizSettingCommand>? CurrentSetting { get; set; }
 
-        public MultipleAnswerUpdater MultipleAnswerUpdater { get; set; }
+        public Dictionary<QuizAnswerTypeEnum, IQuizAnswerUpdater> AnswersUpdater { get; set; }
+
+        private IQuizAnswerUpdater? _currentQuizAnswerUpdater;
+
+        public IQuizAnswerUpdater? CurrentQuizAnswerUpdater
+        {
+            get
+            {
+                if(QuizSettings.AnswerType == QuizAnswerTypeEnum.Multiple)
+                {
+                    _currentQuizAnswerUpdater = AnswersUpdater[QuizAnswerTypeEnum.Multiple];
+                }
+                else if(QuizSettings.AnswerType == QuizAnswerTypeEnum.YesOrNot)
+                {
+                    _currentQuizAnswerUpdater = AnswersUpdater[QuizAnswerTypeEnum.YesOrNot];
+                }
+                else if (QuizSettings.AnswerType == QuizAnswerTypeEnum.AbsoluteAnswer)
+                {
+                    _currentQuizAnswerUpdater = AnswersUpdater[QuizAnswerTypeEnum.AbsoluteAnswer];
+                }
+                else if(QuizSettings.AnswerType == QuizAnswerTypeEnum.All)
+                {
+                    Random rand = new Random();
+                    int answerType = rand.Next(AnswersUpdater.Count);
+                    _currentQuizAnswerUpdater = AnswersUpdater[(QuizAnswerTypeEnum)answerType];
+                }
+                else
+                {
+                    _currentQuizAnswerUpdater = null;
+                }
+
+                return _currentQuizAnswerUpdater;
+            }
+        }
 
         public QuizQuestion? CurrentQuestion { get; set; }
 
@@ -56,14 +89,19 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 
             CurrentSetting = SettingsCommand.First;
 
-            MultipleAnswerUpdater = new MultipleAnswerUpdater(this, executor, QuizSettings);
 
             AmountLeftRounds = -1;
 
             UserScores = [];
             BanVotes = [];
             SKipVotes = [];
-    }
+
+            AnswersUpdater = new([ 
+                new(QuizAnswerTypeEnum.Multiple, new MultipleAnswerUpdater(this, executor, QuizSettings)), 
+                new(QuizAnswerTypeEnum.YesOrNot, new YesOrNotAnswerUpdater(this, executor, QuizSettings)),
+                new(QuizAnswerTypeEnum.AbsoluteAnswer, new AbsoluteAnswerUpdater(this, executor, QuizSettings)),
+                ]);
+        }
 
         public async Task Execute(Message message, ITelegramBotClient client)
         {
@@ -78,7 +116,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             var command = textParts[^1];
 
             var chatId = message.Chat.Id;
-            var userId = message.From.Id;            
+            var userId = message.From.Id;
 
             if (command.Equals("start"))
             {
@@ -90,20 +128,20 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
             else if (command.Equals("stop"))
             {
                 Executor.StopQuizGame();
-                if(QuizIsStart)
+                if (QuizIsStart)
                 {
-                    MultipleAnswerUpdater.StopQuestion();
+                    _currentQuizAnswerUpdater.StopQuestion();
                     QuizIsStart = false;
                 }
                 await client.SendTextMessageAsync(
-                    chatId: QuizMessage.Chat.Id,
+                    chatId: chatId,
                     text: "Остановка игры!\n",
                     replyMarkup: new ReplyKeyboardRemove()
                 );
             }
             else if (command.Equals("skip"))
             {
-                if(UserScores.ContainsKey(userId))
+                if (UserScores.ContainsKey(userId))
                 {
                     SKipVotes.Add(userId);
                 }
@@ -111,7 +149,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                 double percent = (double)SKipVotes.Count / UserScores.Keys.Count;
                 if (QuizIsStart && (percent > 0.5))
                 {
-                    MultipleAnswerUpdater.StopQuestion();
+                    _currentQuizAnswerUpdater.StopQuestion();
                     SKipVotes = [];
                 }
             }
@@ -126,7 +164,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                 if (QuizIsStart && (percent > 0.5))
                 {
                     await BanQuestion();
-                    MultipleAnswerUpdater.StopQuestion();
+                    _currentQuizAnswerUpdater.StopQuestion();
                     BanVotes = [];
                 }
             }
@@ -171,11 +209,13 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                                 int amountRounds = 0;
                                 while (QuizIsStart)
                                 {
-                                    await MultipleAnswerUpdater.Execute(update, client);
+
+                                    await CurrentQuizAnswerUpdater.Execute(update, client);
                                     AmountLeftRounds--;
                                     amountRounds++;
                                     if (AmountLeftRounds == 0 && QuizSettings.AmountRounds != QuizAmountRoundsEnum.EternalGame)
                                     {
+                                        await client.SendTextMessageAsync(chatId, "Партия завершена! ⛔");
                                         break;
                                     }
                                     if (amountRounds == 5)
@@ -191,7 +231,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
                                 Console.WriteLine(ex.Message);
                             }
 
-                            QuizIsStart = false;
+                            QuizIsStart = false;                         
                             await GetUserScores(client);
                         });
                     }

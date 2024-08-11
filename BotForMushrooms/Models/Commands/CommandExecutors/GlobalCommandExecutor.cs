@@ -44,13 +44,17 @@ namespace BotForMushrooms.Models.Commands.CommandExecutros
                 {
                     await command.Execute(message, client);
                 }
-                else if(QuizGame != null)
-                {
-                    await QuizGame.GetUpdate(message, client);
-                }
-                else if(Listener != null)
-                {
-                    await Listener.GetUpdate(message, client);
+                else
+                { 
+                    if (QuizGame != null)
+                    {
+                        await QuizGame.GetUpdate(message, client);
+                    }
+
+                    if (Listener != null)
+                    {
+                        await Listener.GetUpdate(message, client);
+                    }
                 }
             }
             else if(update.CallbackQuery != null)

@@ -1,6 +1,6 @@
 ﻿namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
-    public class QuizQuestion
+    public record QuizQuestion
     {
         public string Question { get; set; }
 

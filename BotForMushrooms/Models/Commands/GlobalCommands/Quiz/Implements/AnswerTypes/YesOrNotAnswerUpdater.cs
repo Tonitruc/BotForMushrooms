@@ -1,16 +1,15 @@
-﻿using BotForMushrooms.Models.ChatListeners;
-using BotForMushrooms.Models.Commands.CommandExecutros;
+﻿using BotForMushrooms.Models.Commands.CommandExecutros;
 using BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi;
-
-using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types;
+using Telegram.Bot;
+using BotForMushrooms.Models.ChatListeners;
 
 namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerTypes
 {
-    public class MultipleAnswerUpdater : IQuizAnswerUpdater, IListener<PollAnswer, GlobalCommandExecutor>
+    public class YesOrNotAnswerUpdater : IQuizAnswerUpdater, IListener<PollAnswer, GlobalCommandExecutor>
     {
-        public string Name => "quiz_multiple_answer_updater";
+        public string Name => "quiz_yes_or_not_answer_updater";
 
         public const int MaxPollMessageLength = 300;
 
@@ -32,7 +31,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
 
         private CancellationTokenSource? CancellationTokenSource { get; set; }
 
-        public MultipleAnswerUpdater(IQuizGame quizGame, GlobalCommandExecutor executor, QuizSettings quizSettings)
+        public YesOrNotAnswerUpdater(IQuizGame quizGame, GlobalCommandExecutor executor, QuizSettings quizSettings)
         {
             Executor = executor;
             QuizSettings = quizSettings;
@@ -45,7 +44,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
         {
             TriviaQuizApi triviaQuizApi = new TriviaQuizApi();
 
-            QuizSettings quizSettings = QuizSettings with { AnswerType = QuizAnswerTypeEnum.Multiple };
+            QuizSettings quizSettings = QuizSettings with { AnswerType = QuizAnswerTypeEnum.YesOrNot };
             QuizQuestion? question = await triviaQuizApi.GetQuestion(quizSettings);
             question = question ?? throw new NullReferenceException("Bad Request from TriviaApi");
             QuizGame.CurrentQuestion = question;
@@ -142,22 +141,8 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.AnswerT
         {
             List<string> answerList = [];
 
-            Random rand = new Random();
-            CorrectIndex = rand.Next(0, 4);
-
-            int incorrectAmount = 0;
-            for (int i = 0; i < 4; i++)
-            {
-                if (i == CorrectIndex)
-                {
-                    answerList.Add(quizQuestion.CorrectAnswer);
-                }
-                else
-                {
-                    answerList.Add(quizQuestion.IncorrectAnswers[incorrectAmount]);
-                    incorrectAmount++;
-                }
-            }
+            CorrectIndex = quizQuestion.CorrectAnswer == "True" ? 0 : 1;
+            answerList.AddRange(["True", "False"]);
 
             return answerList;
         }

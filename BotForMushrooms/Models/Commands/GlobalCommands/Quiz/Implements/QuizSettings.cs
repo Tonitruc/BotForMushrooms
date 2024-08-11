@@ -1,6 +1,6 @@
 ﻿namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements
 {
-    public class QuizSettings
+    public record QuizSettings
     {
         public QuizAmountRoundsEnum? AmountRounds { get; set; }
 

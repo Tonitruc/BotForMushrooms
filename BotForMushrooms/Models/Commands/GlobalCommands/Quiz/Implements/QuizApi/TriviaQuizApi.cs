@@ -13,7 +13,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
 
         public HashSet<QuizDifficultyEnum> Difficulty { get; set; }
 
-        public HashSet<QuizThemeEnum> Theme { get; set; } 
+        public HashSet<QuizThemeEnum> Theme { get; set; }
 
         private enum TriviaApiThemesEnum
         {
@@ -51,7 +51,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
         private List<TriviaApiThemesEnum> GeneralKnowlageThemes { get; }
 
 
-        public TriviaQuizApi() 
+        public TriviaQuizApi()
         {
             AnswerTypes = [
                 QuizAnswerTypeEnum.Multiple,
@@ -114,7 +114,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
                 QuizThemeEnum.VideoGames => [TriviaApiThemesEnum.EntertainmentVideoGames],
                 _ => ScienceThemes.Concat(GeneralKnowlageThemes).Concat(EntertainmentThemes).ToList()
             };
-            
+
             Random rand = new Random();
             TriviaApiThemesEnum currentThem = currentThemes[rand.Next(currentThemes.Count)];
 
@@ -126,12 +126,16 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
             query["amount"] = "1";
             query["category"] = ((int)currentThem).ToString();
 
-            if(quizSettings.Difficulty != QuizDifficultyEnum.All)
+            if (quizSettings.Difficulty != QuizDifficultyEnum.All)
             {
                 query["difficulty"] = quizSettings.Difficulty.ToString().ToLower();
             }
 
-            if(quizSettings.AnswerType != QuizAnswerTypeEnum.All)
+            if (quizSettings.AnswerType == QuizAnswerTypeEnum.YesOrNot)
+            {
+                query["type"] = "boolean";
+            }
+            else
             {
                 query["type"] = "multiple";
             }
@@ -158,7 +162,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
                 }
             }
 
-            if(responseAmount == 0 || response == null)
+            if (responseAmount == 0 || response == null)
             {
                 return null;
             }
@@ -168,7 +172,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
             JObject jsonObject = JObject.Parse(responseBody);
 
             JArray? results = (JArray?)jsonObject["results"];
-            if(results == null)
+            if (results == null)
             {
                 return null;
             }
@@ -182,14 +186,14 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
             string? correctAnswer = (string?)firstResult["correct_answer"];
             JArray? incorrectAnswers = (JArray?)firstResult["incorrect_answers"];
 
-            if(type == null || difficulty == null || category == null
+            if (type == null || difficulty == null || category == null
                 || question == null || correctAnswer == null || incorrectAnswers == null)
             {
                 return null;
             }
 
             List<string>? incorrectAnswersList = incorrectAnswers.ToObject<List<string>>();
-            if(incorrectAnswersList == null)
+            if (incorrectAnswersList == null)
             {
                 return null;
             }
@@ -210,7 +214,7 @@ namespace BotForMushrooms.Models.Commands.GlobalCommands.Quiz.Implements.QuizApi
             question = question.Replace("&#039;", "\'");
             question = question.Replace("&eacute;", "é");
             question = question.Replace("&lt;", "<");
-         
+
             return question;
         }
     }
